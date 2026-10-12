@@ -1,0 +1,51 @@
+name: anime-streaming
+
+services:
+  anime:
+    build: .
+    image: anime-streaming:latest
+    container_name: anime_streaming
+    restart: unless-stopped
+    init: true                       # tini como PID 1: encerra/recolhe processos ffmpeg corretamente
+    env_file: .env
+    environment:
+      GOOGLE_CREDENTIALS_FILE: /run/secrets/gdrive_sa
+      DATA_DIR: /data
+      STATIC_DIR: /app/static
+    secrets:
+      - gdrive_sa                    # chave montada em /run/secrets, fora da imagem e do código
+    ports:
+      # Publica SOMENTE na interface Wi-Fi/LAN (não em VPNs ou outras placas)
+      - "${BIND_IP:-127.0.0.1}:${PORT:-8000}:8000"
+    volumes:
+      - anime_data:/data             # único local gravável
+    read_only: true                  # sistema de arquivos do container é imutável
+    tmpfs:
+      - /tmp:size=64m,mode=1777,noexec,nosuid,nodev
+    cap_drop:
+      - ALL                          # nenhuma capability do kernel
+    security_opt:
+      - no-new-privileges:true       # impede escalada via setuid
+    pids_limit: 256
+    mem_limit: 2g
+    cpus: ${CPU_LIMIT:-4}
+    ulimits:
+      nofile: { soft: 4096, hard: 4096 }
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "3" }
+    networks:
+      - anime_net
+
+secrets:
+  gdrive_sa:
+    file: ./secrets/gdrive-service-account.json
+
+volumes:
+  anime_data:
+
+networks:
+  anime_net:
+    driver: bridge
+    driver_opts:
+      com.docker.network.bridge.enable_icc: "false"

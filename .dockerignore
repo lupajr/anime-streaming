@@ -1,0 +1,16 @@
+# Nada de segredos dentro da imagem
+.env
+.env.*
+secrets/
+**/*service-account*.json
+**/streaming-anime-*.json
+
+.git/
+**/node_modules/
+frontend/dist/
+**/__pycache__/
+**/*.pyc
+**/.venv/
+*.md
+docker-compose.yml
+Dockerfile

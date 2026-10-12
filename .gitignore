@@ -1,0 +1,12 @@
+# Segredos e configuração local — NUNCA versionar
+.env
+secrets/
+*service-account*.json
+streaming-anime-*.json
+
+# Build / dependências
+node_modules/
+frontend/dist/
+__pycache__/
+*.pyc
+.venv/
